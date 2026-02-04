@@ -1,0 +1,20 @@
+#!/bin/bash
+# .git/hooks/pre-push
+# Validate pyproject dependencies before push using Makefile
+
+echo "🔍 Validating dependencies via Makefile (dry-run)..."
+
+# Run dry-run via Makefile
+make -s sync-dry-run MODE=git
+STATUS=$?
+
+if [ $STATUS -ne 0 ]; then
+    echo ""
+    echo "❌ Dependency validation failed!"
+    echo "Your pyproject.toml is out of sync with local repos."
+    echo "Run 'make sync MODE=git' to fix before pushing."
+    exit 1
+fi
+
+echo "✅ Dependencies validated. Proceeding with push."
+exit 0

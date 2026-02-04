@@ -1,0 +1,12 @@
+image: maven:3.3.9
+
+clone:
+  depth: full
+
+pipelines:
+  branches:
+    main:
+      - step:
+          name: Patch version update
+          script:
+            - bash version.sh patch
