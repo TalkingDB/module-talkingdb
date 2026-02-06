@@ -14,7 +14,7 @@ async def index_text(request: IndexTextRequest):
     indexer = IndexerService()
     index = indexer.index_document(request.text)
 
-    return index
+    return index.to_json()
 
 
 @router.get("/html", response_class=HTMLResponse)
@@ -25,5 +25,5 @@ async def index_text_html(text: str):
     indexer = IndexerService()
     index = indexer.index_document(text)
 
-    html = render_graph_html(index["graph"])
+    html = render_graph_html(index.g_json())
     return html

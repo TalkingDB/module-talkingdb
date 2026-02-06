@@ -2,12 +2,14 @@
 
 from typing import List
 
+from talkingdb.models.graph.graph import GraphModel
 from app.services.package_content_elementizer import ContentElementizer, ContentElement
 from app.services.package_text_tokenizer import TextTokenizer
 from app.services.package_symbol_generator import SymbolGenerator
 from app.services.package_root_resolver import RootResolver
 from app.services.package_graph_indexer import GraphIndexer
-from networkx.readwrite import json_graph
+from talkingdb.clients.sqlite import sqlite_conn
+from uuid import uuid4
 
 
 class IndexerService:
@@ -37,8 +39,11 @@ class IndexerService:
                 element_id=element.id,
                 symbols=resolved_symbols,
             )
+        gm = GraphModel(
+            graph_id=GraphModel.make_id(uuid4().hex),
+            graph=self.graph_indexer.graph,
+        )
+        with sqlite_conn() as conn:
+            gm.save(conn)
 
-        return {
-            "elements_indexed": len(elements),
-            "graph": json_graph.node_link_data(self.graph_indexer.graph),
-        }
+        return gm

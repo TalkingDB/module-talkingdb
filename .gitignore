@@ -44,3 +44,6 @@ Thumbs.db
 .env
 logs
 .last_build_commit
+
+# Database
+graphs.db*

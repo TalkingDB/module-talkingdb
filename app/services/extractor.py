@@ -21,7 +21,7 @@ class ExtractorService:
 
     def extract(
         self,
-        graph,
+        graph_id,
         query: str,
         depth: int = 2,
     ) -> List[str]:
@@ -38,7 +38,7 @@ class ExtractorService:
             query_symbols.extend(values)
 
         return self.semantic_extractor.extract(
-            graph=graph,
+            graph_id=graph_id,
             query_symbols=query_symbols,
             depth=depth,
         )

@@ -4,5 +4,5 @@ from pydantic import BaseModel
 
 
 class ExtractTextRequest(BaseModel):
+    graph_id: str
     text: str
-    graph: dict
