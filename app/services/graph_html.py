@@ -6,58 +6,143 @@ def render_graph_html(graph: dict) -> str:
 
     return f"""
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>TalkingDB Graph</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <style>
-    body {{ font-family: sans-serif; }}
-    svg {{ border: 1px solid #ddd; }}
+    html, body {{
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }}
+
+    #graph-container {{
+      width: 100vw;
+      height: 100vh;
+    }}
+
+    svg {{
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+      background: #ffffff;
+    }}
+
+    svg:active {{
+      cursor: grabbing;
+    }}
+
+    .tooltip {{
+      position: absolute;
+      padding: 6px 10px;
+      background: rgba(15, 23, 42, 0.95);
+      color: white;
+      border-radius: 6px;
+      font-size: 12px;
+      pointer-events: none;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.1s ease;
+    }}
+
   </style>
 </head>
 <body>
-<h2>TalkingDB Semantic Graph</h2>
-<svg width="900" height="600"></svg>
+<div class="tooltip" id="tooltip"></div>
+
+<div id="graph-container">
+  <svg></svg>
+</div>
 
 <script>
 const data = {graph_json};
 
 const svg = d3.select("svg");
-const width = +svg.attr("width");
-const height = +svg.attr("height");
+const container = document.getElementById("graph-container");
 
+let width = container.clientWidth;
+let height = container.clientHeight;
+
+// Root group for zooming
+const g = svg.append("g");
+
+// Zoom & pan
+const zoom = d3.zoom()
+  .scaleExtent([0.1, 5])
+  .on("zoom", (event) => {{
+    g.attr("transform", event.transform);
+  }});
+
+svg.call(zoom);
+
+// Force simulation
 const simulation = d3.forceSimulation(data.nodes)
   .force("link", d3.forceLink(data.edges).id(d => d.id).distance(90))
   .force("charge", d3.forceManyBody().strength(-350))
   .force("center", d3.forceCenter(width / 2, height / 2));
 
-const link = svg.append("g")
+// Links
+const link = g.append("g")
   .attr("stroke", "#aaa")
+  .attr("stroke-opacity", 0.7)
   .selectAll("line")
   .data(data.edges)
   .enter()
-  .append("line");
+  .append("line")
+  .attr("stroke-width", 1.2);
 
-const node = svg.append("g")
+const indexColor = d3.scaleOrdinal()
+  .domain([
+    "file@root",
+    "section@outline",
+    "section@para"
+  ])
+  .range([
+    "#0f172a", // root
+    "#2563eb", // section
+    "#64748b"  // paragraph
+  ]);
+
+// Nodes
+const node = g.append("g")
   .selectAll("circle")
   .data(data.nodes)
   .enter()
   .append("circle")
   .attr("r", 8)
-  .attr("fill", d => {{
-    if (d.type === "unigram") return "#2563eb";
-    if (d.type === "bigram") return "#7c3aed";
-    return "#64748b";
-  }})
-  .call(d3.drag()
-    .on("start", dragstarted)
-    .on("drag", dragged)
-    .on("end", dragended)
+  .attr("fill", d => indexColor(d.index ?? "unknown"))
+  .call(
+    d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended)
   );
 
-node.append("title").text(d => d.id);
 
+// Tooltip
+const tooltip = d3.select("#tooltip");
+
+node
+  .on("mouseenter", (event, d) => {{
+    tooltip
+      .style("opacity", 1)
+      .html(d.label ?? d.id);
+  }})
+  .on("mousemove", (event) => {{
+    tooltip
+      .style("left", event.pageX + 12 + "px")
+      .style("top", event.pageY + 12 + "px");
+  }})
+  .on("mouseleave", () => {{
+    tooltip.style("opacity", 0);
+  }});
+
+// Tick update
 simulation.on("tick", () => {{
   link
     .attr("x1", d => d.source.x)
@@ -70,6 +155,7 @@ simulation.on("tick", () => {{
     .attr("cy", d => d.y);
 }});
 
+// Drag handlers
 function dragstarted(event, d) {{
   if (!event.active) simulation.alphaTarget(0.3).restart();
   d.fx = d.x;
@@ -86,7 +172,16 @@ function dragended(event, d) {{
   d.fx = null;
   d.fy = null;
 }}
+
+// Handle resize
+window.addEventListener("resize", () => {{
+  width = container.clientWidth;
+  height = container.clientHeight;
+  simulation.force("center", d3.forceCenter(width / 2, height / 2));
+  simulation.alpha(0.3).restart();
+}});
 </script>
+
 </body>
 </html>
 """

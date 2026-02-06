@@ -1,7 +1,8 @@
 # app/services/indexer.py
 
 from typing import List
-
+import networkx as nx
+from talkingdb.models.document.indexes.index import FileIndexModel, IndexItem
 from talkingdb.models.graph.graph import GraphModel
 from app.services.package_content_elementizer import ContentElementizer, ContentElement
 from app.services.package_text_tokenizer import TextTokenizer
@@ -43,6 +44,43 @@ class IndexerService:
             graph_id=GraphModel.make_id(uuid4().hex),
             graph=self.graph_indexer.graph,
         )
+        with sqlite_conn() as conn:
+            gm.save(conn)
+
+        return gm
+
+    def graph_file_index(self, file_index: FileIndexModel) -> GraphModel:
+        graph = nx.DiGraph()
+
+        def walk(node: IndexItem, parent_id: str = None):
+            node_id = node.id
+
+            graph.add_node(
+                node_id,
+                label=node.label,
+                index=node.index,
+            )
+
+            if parent_id:
+                graph.add_edge(parent_id, node_id)
+
+            for child in node.child:
+                walk(child, node_id)
+
+        graph.add_node(
+            file_index.id,
+            label=getattr(file_index, "filename", None),
+            index="file@root",
+        )
+
+        for top_node in file_index.nodes:
+            walk(top_node, file_index.id)
+
+        gm = GraphModel(
+            graph_id=GraphModel.make_id(uuid4().hex),
+            graph=graph,
+        )
+
         with sqlite_conn() as conn:
             gm.save(conn)
 
