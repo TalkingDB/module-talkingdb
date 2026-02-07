@@ -2,10 +2,10 @@
 from typing import Optional
 from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import HTMLResponse
+from talkingdb.models.document.document import DocumentModel
 from talkingdb.models.document.indexes.index import FileIndexModel
 from talkingdb.models.graph.graph import GraphModel
 from talkingdb.models.metadata.metadata import DEFAULT_METADATA, Metadata
-from app.model.index import IndexTextRequest
 from app.services.indexer import IndexerService
 from app.services.graph_html import render_graph_html
 from talkingdb.clients.sqlite import sqlite_conn
@@ -13,15 +13,6 @@ from talkingdb_ce.client import CEClient
 from talkingdb.helpers.client import config
 
 router = APIRouter(prefix="/index", tags=["Indexer"])
-
-
-@router.post("/")
-async def index_text(request: IndexTextRequest):
-
-    indexer = IndexerService()
-    index = indexer.index_document(request.text)
-
-    return index.to_json()
 
 
 @router.post("/document")
@@ -36,13 +27,13 @@ async def parse_file(
 
     indexer = IndexerService()
     index = indexer.graph_file_index(FileIndexModel(**result["file_index"]))
+    index = indexer.index_document(DocumentModel.from_dict(result["document"]))
 
-    return index.to_json()
+    return index.graph_id
 
 
 @router.get("/html", response_class=HTMLResponse)
 async def view_graph(graph_id: str):
-
 
     with sqlite_conn() as conn:
         gm = GraphModel.load(conn, graph_id, True)

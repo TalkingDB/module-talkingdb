@@ -100,13 +100,20 @@ const indexColor = d3.scaleOrdinal()
   .domain([
     "file@root",
     "section@outline",
-    "section@para"
+    "section@para",
+    "unigram",
+    "bigram",
+    "trigram"
   ])
   .range([
     "#0f172a", // root
     "#2563eb", // section
-    "#64748b"  // paragraph
+    "#64748b", // paragraph
+    "#16a34a", // unigram (green)
+    "#d97706", // bigram (amber)
+    "#dc2626"  // trigram (red)
   ]);
+
 
 // Nodes
 const node = g.append("g")
@@ -115,7 +122,7 @@ const node = g.append("g")
   .enter()
   .append("circle")
   .attr("r", 8)
-  .attr("fill", d => indexColor(d.index ?? "unknown"))
+  .attr("fill", d => indexColor(d.type ?? "unknown"))
   .call(
     d3.drag()
       .on("start", dragstarted)
