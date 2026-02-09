@@ -40,7 +40,7 @@ class TextTokenizer:
 
         self.matcher = MatchTrainer(self.nlp).train()
 
-    def tokenize(self, text: str) -> List[str]:
+    def tokenize(self, text: str, strict: bool = True) -> List[str]:
         doc = self.nlp(text.lower())
         matches = self.matcher(doc)
 
@@ -63,7 +63,7 @@ class TextTokenizer:
         for i, token in enumerate(doc):
             if i in consumed:
                 continue
-            if token.is_alpha and not token.is_stop:
+            if (not strict or token.is_alpha) and not token.is_stop:
                 tokens.append(token.lemma_)
 
         return tokens
