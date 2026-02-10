@@ -22,6 +22,9 @@ install-hooks:
 	@chmod +x .git/hooks/*
 	@echo "Git hooks installed!"
 
+docker-publish:
+	@bash docker-publish.sh
+
 help:
 	@echo ""
 	@echo "Targets:"
