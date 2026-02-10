@@ -1,0 +1,22 @@
+{
+  "talkingdb-models": {
+    "package-name": "talkingdb-models",
+    "git_path": "git+https://github.com/TalkingDB/base-tdb-models.git",
+    "local_path": "../base-tdb-models"
+  },
+  "talkingdb-clients": {
+    "package-name": "talkingdb-clients",
+    "git_path": "git+https://github.com/TalkingDB/base-tdb-clients.git",
+    "local_path": "../base-tdb-clients"
+  },
+  "talkingdb-helpers": {
+    "package-name": "talkingdb-helpers",
+    "git_path": "git+https://github.com/TalkingDB/base-tdb-helpers.git",
+    "local_path": "../base-tdb-helpers"
+  },
+  "package-content-elementizer": {
+    "package-name": "package-content-elementizer",
+    "git_path": "git+https://github.com/TalkingDB/package-content-elementizer.git",
+    "local_path": "../package-content-elementizer"
+  }
+}

@@ -1,0 +1,32 @@
+[project]
+name = "module-talkingdb"
+version = "2.0.0"
+description = "Central module implementing TalkingDB's symbolic reasoning workflows."
+authors = [
+    { name = "immkg", email = "mayank.g@smarter.codes" }
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.14"
+
+fastapi = ">=0.125.0,<0.126.0"
+uvicorn = { version = ">=0.38.0,<0.39.0", extras = ["standard"] }
+
+dotenv = ">=0.9.9,<0.10.0"
+python-dotenv = ">=1.2.1,<2.0.0"
+python-multipart = ">=0.0.20,<0.0.21"
+
+debugpy = ">=1.8.19,<2.0.0"
+networkx = "^3.6.1"
+spacy = "^3.8.11"
+
+talkingdb-models = { git = "git+https://github.com/TalkingDB/base-tdb-models.git", rev = "923d37ea1b17ddffce2ad62696f43c3cd04a9b5f" }
+talkingdb-clients = { git = "git+https://github.com/TalkingDB/base-tdb-clients.git", rev = "53b99b9755fc84c813aa32c78b1d7d50ca8a06f0" }
+talkingdb-helpers = { git = "git+https://github.com/TalkingDB/base-tdb-helpers.git", rev = "4725c4d43d3e970842e42786fb8557797ad9bc6b" }
+package-content-elementizer = { git = "git+https://github.com/TalkingDB/package-content-elementizer.git", rev = "f812e0a16b133b828b54c28b5ff9123420817074" }
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
