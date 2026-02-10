@@ -23,7 +23,7 @@ async def parse_file(
     _metadata = Metadata.from_json(metadata)
     _metadata = Metadata.ensure_metadata(_metadata)
     client = CEClient(config)
-    result = client.parse_file(file=document_file, metadata=_metadata)
+    result = await client.parse_file(file=document_file, metadata=_metadata)
 
     indexer = IndexerService()
     index = indexer.graph_file_index(FileIndexModel(**result["file_index"]))

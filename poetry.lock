@@ -1031,7 +1031,7 @@ optional = false
 python-versions = ">=3.12,<3.14"
 groups = ["main"]
 files = []
-develop = false
+develop = true
 
 [package.dependencies]
 debugpy = ">=1.8.19,<2.0.0"
@@ -1040,16 +1040,14 @@ pydantic = ">=2.12.5,<3.0.0"
 python-docx = ">=1.2.0,<2.0.0"
 python-multipart = ">=0.0.20,<0.0.21"
 requests = ">=2.32.5,<3.0.0"
-talkingdb-clients = {git = "https://github.com/TalkingDB/base-tdb-clients.git", rev = "53b99b9755fc84c813aa32c78b1d7d50ca8a06f0"}
-talkingdb-helpers = {git = "https://github.com/TalkingDB/base-tdb-helpers.git", rev = "64875e7c0114fc41a2059bc00d1600d6a929c7e3"}
-talkingdb-models = {git = "https://github.com/TalkingDB/base-tdb-models.git", rev = "923d37ea1b17ddffce2ad62696f43c3cd04a9b5f"}
+talkingdb-clients = {path = "../base-tdb-clients", develop = true}
+talkingdb-helpers = {path = "../base-tdb-helpers", develop = true}
+talkingdb-models = {path = "../base-tdb-models", develop = true}
 uvicorn = {version = ">=0.38.0,<0.39.0", extras = ["standard"]}
 
 [package.source]
-type = "git"
-url = "https://github.com/TalkingDB/package-content-elementizer.git"
-reference = "d659e861e642daa1ee5340ab82189a18ac88e816"
-resolved_reference = "d659e861e642daa1ee5340ab82189a18ac88e816"
+type = "directory"
+url = "../package-content-elementizer"
 
 [[package]]
 name = "packaging"
@@ -1709,17 +1707,15 @@ optional = false
 python-versions = ">=3.12,<3.14"
 groups = ["main"]
 files = []
-develop = false
+develop = true
 
 [package.dependencies]
 dotenv = ">=0.9.9,<0.10.0"
 tenacity = ">=9.1.2,<10.0.0"
 
 [package.source]
-type = "git"
-url = "https://github.com/TalkingDB/base-tdb-clients.git"
-reference = "53b99b9755fc84c813aa32c78b1d7d50ca8a06f0"
-resolved_reference = "53b99b9755fc84c813aa32c78b1d7d50ca8a06f0"
+type = "directory"
+url = "../base-tdb-clients"
 
 [[package]]
 name = "talkingdb-helpers"
@@ -1729,17 +1725,15 @@ optional = false
 python-versions = ">=3.12,<3.14"
 groups = ["main"]
 files = []
-develop = false
+develop = true
 
 [package.dependencies]
-talkingdb-clients = {git = "https://github.com/TalkingDB/base-tdb-clients.git", rev = "53b99b9755fc84c813aa32c78b1d7d50ca8a06f0"}
-talkingdb-models = {git = "https://github.com/TalkingDB/base-tdb-models.git", rev = "923d37ea1b17ddffce2ad62696f43c3cd04a9b5f"}
+talkingdb-clients = {path = "../base-tdb-clients", develop = true}
+talkingdb-models = {path = "../base-tdb-models", develop = true}
 
 [package.source]
-type = "git"
-url = "https://github.com/TalkingDB/base-tdb-helpers.git"
-reference = "64875e7c0114fc41a2059bc00d1600d6a929c7e3"
-resolved_reference = "64875e7c0114fc41a2059bc00d1600d6a929c7e3"
+type = "directory"
+url = "../base-tdb-helpers"
 
 [[package]]
 name = "talkingdb-models"
@@ -1749,7 +1743,7 @@ optional = false
 python-versions = ">=3.12,<3.14"
 groups = ["main"]
 files = []
-develop = false
+develop = true
 
 [package.dependencies]
 networkx = "^3.6.1"
@@ -1757,10 +1751,8 @@ pydantic = {version = ">=2.12.5,<3.0.0", extras = ["email"]}
 smart-slugify = ">=0.1.2,<0.2.0"
 
 [package.source]
-type = "git"
-url = "https://github.com/TalkingDB/base-tdb-models.git"
-reference = "923d37ea1b17ddffce2ad62696f43c3cd04a9b5f"
-resolved_reference = "923d37ea1b17ddffce2ad62696f43c3cd04a9b5f"
+type = "directory"
+url = "../base-tdb-models"
 
 [[package]]
 name = "tenacity"
@@ -2366,4 +2358,4 @@ dev = ["pytest", "setuptools"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<3.14"
-content-hash = "530ab164fe80be34e000884857c6efabd6da97aa7a3e08f3a181f164667a67ee"
+content-hash = "25937bc2e57caa0144783bad386b7a7038bfd7f07f0ebe7e9b113ee10a6b318a"
