@@ -12,6 +12,8 @@ RUN --mount=type=cache,target=/root/.cache/pypoetry \
     --mount=type=cache,target=/root/.cache/pip \
     poetry config virtualenvs.create false && poetry lock && poetry install --no-root --no-interaction --no-ansi --only main
 
+RUN python -m spacy download en_core_web_md
+
 COPY ./app /app/app
 
 ENV PYTHONUNBUFFERED=1 \
