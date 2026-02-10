@@ -237,7 +237,7 @@ class ExtractorService:
                 # sort by match strength
                 return self.get_scores({k[0]: k[1] for k in symbols.most_common()}, {k[0]: k[1] for k in elements.most_common()})
 
-        return []
+        return self.get_scores({}, {})
 
     def _collect_paragraphs(
         self,

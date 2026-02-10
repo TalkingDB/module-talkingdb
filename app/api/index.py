@@ -11,7 +11,7 @@ from app.services.graph_html import render_graph_html
 from talkingdb.clients.sqlite import sqlite_conn
 from talkingdb_ce.client import CEClient
 from talkingdb.helpers.client import config
-
+from app.model.index import IndexElementRequest
 router = APIRouter(prefix="/index", tags=["Indexer"])
 
 
@@ -29,7 +29,20 @@ async def parse_file(
     index = indexer.graph_file_index(FileIndexModel(**result["file_index"]))
     index = indexer.index_document(DocumentModel.from_dict(result["document"]))
 
-    return index.graph_id
+    return {"graph_id": index.graph_id}
+
+
+@router.post("/document/elements")
+async def parse_element(request: IndexElementRequest):
+
+    metadata = request.metadata
+    metadata = Metadata.ensure_metadata(metadata)
+
+    indexer = IndexerService()
+    index = indexer.graph_file_index(request.file_index)
+    index = indexer.index_document(request.document)
+
+    return {"graph_id": index.graph_id}
 
 
 @router.get("/html", response_class=HTMLResponse)
