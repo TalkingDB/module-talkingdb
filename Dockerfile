@@ -24,4 +24,4 @@ COPY ./version.txt /version.txt
 
 EXPOSE 8090
 
-CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8090", "--workers", "1"]
+CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8090", "--workers", "4"]
