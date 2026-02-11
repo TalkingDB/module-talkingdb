@@ -2,7 +2,7 @@
 
 from talkingdb.models.document.document import DocumentModel
 from talkingdb.models.document.elements.primitive.paragraph import ParagraphModel
-from talkingdb.models.document.indexes.index import FileIndexModel, IndexItem
+from talkingdb.models.document.indexes.index import FileIndexModel, IndexItem, IndexType
 from talkingdb.models.graph.graph import GraphModel
 from app.services.package_text_tokenizer import TextTokenizer
 from app.services.package_symbol_generator import SymbolGenerator
@@ -57,7 +57,16 @@ class IndexerService:
                 tokens = self.tokenizer.tokenize(text)
                 symbols = self.symbol_generator.generate(tokens)
 
-                self.gm.graph.add_node(node_id, text=text, type="element")
+                heading_path = document._get_heading_path(element)
+
+                metadata = {
+                    "index": IndexType.PARA,
+                    "heading_path": heading_path,
+                    "filename": document.filename
+                }
+
+                self.gm.graph.add_node(
+                    node_id, text=text, metadata=metadata, type="element")
 
                 for symbol_type, symbol_list in symbols.items():
                     for symbol in symbol_list:
@@ -65,7 +74,8 @@ class IndexerService:
                             symbol,
                             type=symbol_type,
                         )
-                        self.gm.graph.add_edge(node_id, symbol, type="contains")
+                        self.gm.graph.add_edge(
+                            node_id, symbol, type="contains")
 
                 # TODO: extract key pairs from elements
                 for line in text.splitlines():
@@ -73,13 +83,16 @@ class IndexerService:
                     if ":" not in line:
                         continue
 
-                    key_raw, val_raw = [part.strip() for part in line.split(":", 1)]
+                    key_raw, val_raw = [part.strip()
+                                        for part in line.split(":", 1)]
                     if not key_raw or not val_raw:
                         continue
 
-                    key_id = self.symbol_generator.max_gram(self.tokenizer.tokenize(key_raw))
-                    val_id = self.symbol_generator.max_gram(self.tokenizer.tokenize(val_raw, False))
-                    
+                    key_id = self.symbol_generator.max_gram(
+                        self.tokenizer.tokenize(key_raw))
+                    val_id = self.symbol_generator.max_gram(
+                        self.tokenizer.tokenize(val_raw, False))
+
                     self.gm.graph.add_node(key_id, text=key_raw, is_key=True)
                     self.gm.graph.add_node(val_id, text=val_raw, is_val=True)
                     self.gm.graph.add_edge(key_id, val_id, type="key_value")

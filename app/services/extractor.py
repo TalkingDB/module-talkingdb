@@ -87,13 +87,14 @@ class ExtractorService:
         matched_elements = []
         for symbol, score in ranked_symbols:
             matched_symbols.append({"id": symbol,
-                                    "text": self.gm.graph.nodes[symbol].get("text"),
+                                    "content": self.gm.graph.nodes[symbol].get("text"),
                                     "type": self.gm.graph.nodes[symbol].get("type"),
                                     "score": score})
         for element, score in ranked_elements:
             matched_elements.append({"id": element,
-                                    "text": self.gm.graph.nodes[element].get("text"),
+                                     "content": self.gm.graph.nodes[element].get("text"),
                                      "type": self.gm.graph.nodes[element].get("type"),
+                                     "metadata": self.gm.graph.nodes[element].get("metadata"),
                                      "score": score})
 
         return {"elements": matched_elements, "symbols": matched_symbols}
