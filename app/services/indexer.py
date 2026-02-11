@@ -103,4 +103,6 @@ class IndexerService:
         with sqlite_conn() as conn:
             self.gm.save(conn)
 
+        self.gm.clear()
+        
         return self.gm

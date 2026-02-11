@@ -6,8 +6,7 @@ from uuid import uuid4
 
 from app.services.package_text_tokenizer import TextTokenizer
 from app.services.package_symbol_generator import SymbolGenerator
-from talkingdb.clients.sqlite import sqlite_conn
-from talkingdb.models.graph.graph import GraphModel
+from talkingdb.helpers.graph_cache import graph_cache
 from collections import Counter
 
 NGRAM_WEIGHTS: Dict[str, int] = {
@@ -29,8 +28,7 @@ MAX_EDGE_CONTRIBUTION: int = 10
 class ExtractorService:
 
     def __init__(self, graph_id: str, max_matches: int = 10):
-        with sqlite_conn() as conn:
-            self.gm = GraphModel.load(conn, graph_id)
+        self.gm = graph_cache.get(graph_id)
 
         self.max_matches = max_matches
         self.tokenizer = TextTokenizer()
