@@ -25,7 +25,7 @@ spacy = "^3.8.11"
 talkingdb-models = { git = "git+https://github.com/TalkingDB/base-tdb-models.git", rev = "5cfecbac5936fd2049e30dcc35d36b10d5428cbd" }
 talkingdb-clients = { git = "git+https://github.com/TalkingDB/base-tdb-clients.git", rev = "53b99b9755fc84c813aa32c78b1d7d50ca8a06f0" }
 talkingdb-helpers = { git = "git+https://github.com/TalkingDB/base-tdb-helpers.git", rev = "7f14aa06c3ddb328579a4ec72dbc003c7b06f365" }
-package-content-elementizer = { git = "git+https://github.com/TalkingDB/package-content-elementizer.git", rev = "daa9b2315ec30fcb8f12138d755fd96a7af9357a" }
+package-content-elementizer = { git = "git+https://github.com/TalkingDB/package-content-elementizer.git", rev = "47fb442e04c39b3b6a61a2ec4fae4d87331a4443" }
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
