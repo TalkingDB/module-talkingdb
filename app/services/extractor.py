@@ -255,7 +255,7 @@ class ExtractorService:
                 node_type = self.gm.graph.nodes[neighbor].get("type")
 
                 # skip the temporary query node itself
-                if node_type == "query@temp":
+                if node_type not in ["paragraph", "table"]:
                     continue
 
                 elements[neighbor] += 1

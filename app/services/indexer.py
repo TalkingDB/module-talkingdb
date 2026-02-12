@@ -2,6 +2,7 @@
 
 from talkingdb.models.document.document import DocumentModel
 from talkingdb.models.document.elements.primitive.paragraph import ParagraphModel
+from talkingdb.models.document.elements.primitive.table import TableModel
 from talkingdb.models.document.indexes.index import FileIndexModel, IndexItem, IndexType
 from talkingdb.models.graph.graph import GraphModel
 from app.services.package_text_tokenizer import TextTokenizer
@@ -66,7 +67,7 @@ class IndexerService:
                 }
 
                 self.gm.graph.add_node(
-                    node_id, text=text, metadata=metadata, type="element")
+                    node_id, text=text, metadata=metadata, type="paragraph")
 
                 for symbol_type, symbol_list in symbols.items():
                     for symbol in symbol_list:
@@ -99,6 +100,74 @@ class IndexerService:
 
                     self.gm.graph.add_edge(node_id, key_id, type="contains")
                     self.gm.graph.add_edge(node_id, val_id, type="describes")
+
+            if isinstance(element, TableModel):
+                node_id = element.caption_ref_id or element.id
+                caption_elem = document.get_element_by_id(element.caption_ref_id)
+                table_caption = [caption_elem.to_text()] if caption_elem else []
+
+                text = element.to_html()
+                heading_path = document._get_heading_path(element) + table_caption
+
+                metadata = {
+                    "index": IndexType.TABLE,
+                    "heading_path": heading_path,
+                    "filename": document.filename
+                }
+
+                self.gm.graph.add_node(
+                    node_id, text=text, metadata=metadata, type="table")
+
+                
+                for row_idx, row in enumerate(element.rows):
+                    for col_idx, cell in enumerate(row):
+                        header = ", ".join(element.get_header(row_idx, col_idx))
+                        header_tokens = self.tokenizer.tokenize(header, False)
+                        header_symbols = self.symbol_generator.generate(header_tokens)
+
+                        metadata = {
+                            "index": IndexType.TABLE_HEADER,
+                            "heading_path": heading_path,
+                            "filename": document.filename
+                        }
+
+                        self.gm.graph.add_node(
+                            header, text=header, metadata=metadata, type="header")
+                        self.gm.graph.add_edge(
+                            node_id, header, type="part_of")
+
+                        for symbol_type, symbol_list in header_symbols.items():
+                            for symbol in symbol_list:
+                                self.gm.graph.add_node(
+                                    symbol,
+                                    type=symbol_type,
+                                )
+                                self.gm.graph.add_edge(
+                                    header, symbol, type="contains")
+                        
+                        cell_text = cell.to_text()
+
+                        cell_tokens = self.tokenizer.tokenize(cell_text)
+                        cell_symbols = self.symbol_generator.generate(cell_tokens)
+
+                        for symbol_type, symbol_list in cell_symbols.items():
+                            for symbol in symbol_list:
+                                self.gm.graph.add_node(
+                                    symbol,
+                                    type=symbol_type,
+                                )
+                                self.gm.graph.add_edge(
+                                    header, symbol, type="contains")
+                        
+                        key_id = self.symbol_generator.max_gram(
+                            self.tokenizer.tokenize(header, False))
+                        val_id = self.symbol_generator.max_gram(
+                            self.tokenizer.tokenize(cell_text, False))
+
+                        self.gm.graph.add_node(key_id, text=key_raw, is_key=True)
+                        self.gm.graph.add_node(val_id, text=val_raw, is_val=True)
+                        self.gm.graph.add_edge(key_id, val_id, type="key_value")
+
 
         with sqlite_conn() as conn:
             self.gm.save(conn)

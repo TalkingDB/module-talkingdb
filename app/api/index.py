@@ -37,9 +37,10 @@ async def parse_element(request: IndexElementRequest):
 
     metadata = request.metadata
     metadata = Metadata.ensure_metadata(metadata)
+    file_index = request.document.build_index()
 
     indexer = IndexerService()
-    index = indexer.graph_file_index(request.file_index)
+    index = indexer.graph_file_index(file_index)
     index = indexer.index_document(request.document)
 
     return {"graph_id": index.graph_id}
