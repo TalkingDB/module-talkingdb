@@ -35,6 +35,13 @@ class TextTokenizer:
                 ]]
             )
 
+            matcher.add(
+                "SPONSOR",
+                [[
+                    {"LEMMA": {"IN": ["sponsor", "company"]}}
+                ]]
+            )
+
             self._local.nlp = nlp
             self._local.matcher = matcher
 
