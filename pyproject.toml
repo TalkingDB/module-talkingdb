@@ -20,12 +20,14 @@ python-multipart = ">=0.0.20,<0.0.21"
 
 debugpy = ">=1.8.19,<2.0.0"
 networkx = "^3.6.1"
-spacy = "^3.8.11"
 
 talkingdb-models = { git = "git+https://github.com/TalkingDB/base-tdb-models.git", rev = "5cfecbac5936fd2049e30dcc35d36b10d5428cbd" }
 talkingdb-clients = { git = "git+https://github.com/TalkingDB/base-tdb-clients.git", rev = "53b99b9755fc84c813aa32c78b1d7d50ca8a06f0" }
-talkingdb-helpers = { git = "git+https://github.com/TalkingDB/base-tdb-helpers.git", rev = "7f14aa06c3ddb328579a4ec72dbc003c7b06f365" }
-package-content-elementizer = { git = "git+https://github.com/TalkingDB/package-content-elementizer.git", rev = "47fb442e04c39b3b6a61a2ec4fae4d87331a4443" }
+talkingdb-helpers = { git = "git+https://github.com/TalkingDB/base-tdb-helpers.git", rev = "22487371179056326711fb6c50604a146debe8a5" }
+package-content-elementizer = { git = "git+https://github.com/TalkingDB/package-content-elementizer.git", rev = "3a73eb612eb53cd723b7e646051f272a755f9a15" }
+uvloop = "^0.22.1"
+httptools = "^0.7.1"
+spacy = "^3.8.11"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
