@@ -1,8 +1,8 @@
 
-from typing import Any
+from typing import Any, List
 from pydantic import BaseModel
 
 
 class ExtractTextRequest(BaseModel):
-    graph_id: str
+    graph_ids: List[str]
     text: str

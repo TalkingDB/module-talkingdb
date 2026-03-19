@@ -1,24 +1,23 @@
-# app/services/extractor.py
-
 from typing import Dict, List
 from collections import Counter
 
 from app.services.package_text_tokenizer import TextTokenizer
 from app.services.package_symbol_generator import SymbolGenerator
 from talkingdb.helpers.graph_cache import graph_cache
+from app.core.thread_pool import executor
 
 
 class ExtractorService:
 
-    def __init__(self, graph_id: str, max_matches: int = 10):
-        self.gm = graph_cache.get(graph_id)
+    def __init__(self, graph_ids: List[str], max_matches: int = 10):
+        self.gms = [graph_cache.get(gid) for gid in graph_ids]
 
         self.max_matches = max_matches
         self.tokenizer = TextTokenizer()
         self.symbol_generator = SymbolGenerator()
 
-    # ─────────────────────────────────────────────────────────────
-    # Public API (NO GRAPH MUTATION)
+        self.executor = executor
+
     # ─────────────────────────────────────────────────────────────
 
     def extract(self, query: str):
@@ -26,7 +25,6 @@ class ExtractorService:
         tokens = self.tokenizer.tokenize(query)
         symbols = self.symbol_generator.generate(tokens)
 
-        # Try trigram → bigram → unigram
         for symbol_type in self.symbol_generator.grams():
 
             elements, matched_symbols = self._collect_paragraphs(
@@ -40,8 +38,6 @@ class ExtractorService:
         return self.get_scores({}, {})
 
     # ─────────────────────────────────────────────────────────────
-    # Core Traversal (NO QUERY NODE)
-    # ─────────────────────────────────────────────────────────────
 
     def _collect_paragraphs(
         self,
@@ -49,32 +45,48 @@ class ExtractorService:
         symbol_type: str,
     ):
 
-        symbols_counter = Counter()
-        elements_counter = Counter()
+        def process_graph(gm):
+            local_symbols = Counter()
+            local_elements = Counter()
 
-        graph = self.gm.graph
+            graph = gm.graph
 
-        for symbol in query_symbols:
+            for symbol in query_symbols:
 
-            if symbol not in graph:
-                continue
-
-            if graph.nodes[symbol].get("type") != symbol_type:
-                continue
-
-            for neighbor in graph.neighbors(symbol):
-                node_type = graph.nodes[neighbor].get("type")
-
-                if node_type not in ("paragraph", "table"):
+                if symbol not in graph:
                     continue
 
-                elements_counter[neighbor] += 1
-                symbols_counter[symbol] += 1
+                if graph.nodes[symbol].get("type") != symbol_type:
+                    continue
+
+                for neighbor in graph.neighbors(symbol):
+                    node_type = graph.nodes[neighbor].get("type")
+
+                    if node_type not in ("paragraph", "table"):
+                        continue
+
+                    element_id = f"{gm.graph_id}##{neighbor}"
+                    symbol_id = f"{gm.graph_id}##{symbol}"
+
+                    local_elements[element_id] += 1
+                    local_symbols[symbol_id] += 1
+
+            return local_elements, local_symbols
+
+        elements_counter = Counter()
+        symbols_counter = Counter()
+
+        futures = [
+            self.executor.submit(process_graph, gm)
+            for gm in self.gms
+        ]
+
+        for future in futures:
+            el_counter, sym_counter = future.result()
+            elements_counter.update(el_counter)
+            symbols_counter.update(sym_counter)
 
         return elements_counter, symbols_counter
-
-    # ─────────────────────────────────────────────────────────────
-    # Ranking (UNCHANGED)
     # ─────────────────────────────────────────────────────────────
 
     def get_scores(
@@ -96,19 +108,25 @@ class ExtractorService:
         matched_symbols = []
         matched_elements = []
 
-        graph = self.gm.graph
+        for full_id, score in ranked_symbols:
+            graph_id, symbol = full_id.split("##", 1)
+            graph = graph_cache.get(graph_id).graph
 
-        for symbol, score in ranked_symbols:
             matched_symbols.append({
                 "id": symbol,
+                "graph_id": graph_id,
                 "content": graph.nodes[symbol].get("text"),
                 "type": graph.nodes[symbol].get("type"),
                 "score": score,
             })
 
-        for element, score in ranked_elements:
+        for full_id, score in ranked_elements:
+            graph_id, element = full_id.split("##", 1)
+            graph = graph_cache.get(graph_id).graph
+
             matched_elements.append({
                 "id": element,
+                "graph_id": graph_id,
                 "content": graph.nodes[element].get("text"),
                 "type": graph.nodes[element].get("type"),
                 "metadata": graph.nodes[element].get("metadata"),

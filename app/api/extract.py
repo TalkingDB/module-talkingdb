@@ -9,7 +9,7 @@ router = APIRouter(prefix="/extract", tags=["Extractor"])
 @router.post("")
 async def extract_nodes(request: ExtractTextRequest):
 
-    extractor = ExtractorService(graph_id=request.graph_id)
+    extractor = ExtractorService(graph_ids=request.graph_ids)
     nodes = extractor.extract(query=request.text)
 
     return nodes
