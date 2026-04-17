@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api import root, index, extract
+from app.api import root, index, extract, documents
 from app.services.workers import start_workers
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -24,5 +24,6 @@ app.add_middleware(
 )
 
 app.include_router(root.router)
+app.include_router(documents.router)
 app.include_router(index.router)
 app.include_router(extract.router)
