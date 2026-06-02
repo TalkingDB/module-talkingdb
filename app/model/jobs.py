@@ -14,6 +14,7 @@ class JobAcceptedResponse(BaseModel):
     """Response for accepted ingestion jobs."""
 
     job_id: str = Field(..., description="Stable job id")
+    job_type: str = Field(..., description="Kind of background operation (e.g. 'document')")
     state: str = Field(..., description="Current job state")
 
 
@@ -21,6 +22,10 @@ class JobStatusResponse(BaseModel):
     """Response for job status polling."""
 
     job_id: str
+    job_type: str = Field(
+        ...,
+        description="Kind of background operation (e.g. 'document')",
+    )
     state: str = Field(
         ...,
         description="QUEUED | ONGOING | CANCELLING | CANCELLED | COMPLETED | FAILED",

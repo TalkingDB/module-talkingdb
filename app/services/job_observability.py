@@ -32,6 +32,7 @@ def emit_lifecycle(job: JobModel, *, rollback_ms: Optional[int] = None) -> None:
     record = {
         "event": "job.lifecycle",
         "job_id": job.job_id,
+        "job_type": job.job_type.value,
         "state": job.state.value,
         "stage": job.stage.value if job.stage else None,
         "file_size_bytes": job.file_size_bytes,
@@ -39,8 +40,6 @@ def emit_lifecycle(job: JobModel, *, rollback_ms: Optional[int] = None) -> None:
         "processing_ms": _diff_ms(job.started_at, job.completed_at),
         "rollback_ms": rollback_ms,
         "error_code": job.error_code.value if job.error_code else None,
-        "idempotency_key": job.idempotency_key,
-        "user_id": job.user_id,
         "filename": job.filename,
     }
 
