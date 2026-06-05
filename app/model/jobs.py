@@ -39,7 +39,7 @@ class JobStatusResponse(BaseModel):
     )
     progress: int = Field(
         None,
-        description="0-100 once the work size is known, Reset to 0 in any terminal state",
+        description="0-100 once the work size is known, Reset to 0 on terminal state",
     )
     status_message: Optional[str] = Field(
         None, description="Short, human-readable status text for UI display"
