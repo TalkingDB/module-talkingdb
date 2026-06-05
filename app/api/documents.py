@@ -14,7 +14,11 @@ from talkingdb.clients.sqlite import sqlite_conn
 from talkingdb.helpers import spool
 from talkingdb.helpers.auth import verify_api_key
 from talkingdb.helpers.job import store as job_store
-from talkingdb.helpers.validation import validate_file_type
+from talkingdb.helpers.validation import (
+    validate_file_type,
+    max_file_size_bytes_for,
+    max_file_size_mb_for,
+)
 from talkingdb.models.api.response import ErrorResponse
 from talkingdb.models.job.job import JobModel
 from talkingdb.models.job.type import JobType
@@ -48,12 +52,12 @@ router = APIRouter(prefix="/v1", tags=["Jobs"])
     },
 )
 async def submit_document_job(
-    file: UploadFile = File(..., description="The document file to upload (.docx)"),
+    file: UploadFile = File(..., description="The document file to upload (.docx or .pdf)"),
     metadata: Optional[str] = Form(DEFAULT_METADATA, description="JSON metadata string"),
     api_key: str = Depends(verify_api_key),
 ) -> JobAcceptedResponse:
     """Submit a document ingestion job for background processing."""
-    validate_file_type(file)
+    ext = validate_file_type(file)
 
     spool.assert_spool_capacity()
 
@@ -74,7 +78,11 @@ async def submit_document_job(
     temp_path: Optional[str] = None
     enqueued = False
     try:
-        temp_path, size_bytes = await spool.spool_upload(file)
+        temp_path, size_bytes = await spool.spool_upload(
+            file,
+            max_size_mb=max_file_size_mb_for(ext),
+            max_size_bytes=max_file_size_bytes_for(ext),
+        )
 
         metadata_json = metadata if metadata else DEFAULT_METADATA
 
@@ -91,7 +99,7 @@ async def submit_document_job(
         jobs.enqueue_reserved(
             job_id=job.job_id,
             temp_path=temp_path,
-            filename=file.filename or "upload.docx",
+            filename=file.filename or f"upload.{ext}",
             metadata_json=metadata_json,
         )
         enqueued = True
